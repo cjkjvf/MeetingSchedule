@@ -11,7 +11,12 @@ namespace MeetingSchedule.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService userService;
-        public UsersController(IUserService userService) => this.userService = userService;
+        private readonly IMeetingService meetingService;
+        public UsersController(IUserService userService, IMeetingService meetingService)
+        {
+            this.userService = userService;
+            this.meetingService = meetingService;
+        }
 
         [HttpPost]
         public ActionResult<User> CreateUser([FromBody] UserDTO dto)
@@ -27,7 +32,15 @@ namespace MeetingSchedule.Controllers
         [HttpGet]
         public ActionResult<List<User>> GetAllUsers() => Ok(userService.GetAllUsers());
 
-        //[HttpGet("{userId}/meetings")]
+        [HttpGet("{id}/meetings")]
+        public ActionResult<List<Meeting>> GetUserMittings(int id)
+        {
+            if (userService.GetUser(id) is null)
+                return NotFound();
+
+            var meetings = meetingService.GetMeetingsForUser(id);
+            return Ok(meetings);
+        }
 
     }
 }
